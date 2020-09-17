@@ -98,8 +98,8 @@ def MLOG(img):
 
 
 # Vollath-4 operator to measure focus
-def VOLL4(img):
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(int)
+def VOLL4(gray_img):
+    # gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(int)
 
     tmp_image = numpy.zeros(gray_img.shape, dtype=int)
     tmp_image[:, :tmp_image.shape[1] - 1] = gray_img[:, 1:]
