@@ -3,9 +3,9 @@ import cv2 as cv
 from experiments.focus_map_getters import get_image_focus_map
 import experiments.objective_functions as of
 
-datasets_path = '../../datasets/'
+datasets_path = '../datasets/'
 results_path = '../results/'
-stack_name = 'Bee wing new by-hand'
+stack_name = 'Human Hair - HD'
 
 file_names = os.listdir(datasets_path + stack_name)
 window_size = 21

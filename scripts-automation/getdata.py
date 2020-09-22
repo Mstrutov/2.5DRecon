@@ -23,10 +23,14 @@ def extractImages(pathIn, pathOut, msecsBetweenFrames=200):
 def extract_frames(path_in, path_out, distance_between_frames=1):
     vidcap = cv2.VideoCapture(path_in)
     success, image = vidcap.read()
-    for i in range(0, int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT)), distance_between_frames):
+    if not success:
+        return
+    for i in range(0, int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT) - 1), distance_between_frames):
         vidcap.set(cv2.CAP_PROP_POS_MSEC, i)    # added this line
         cv2.imwrite(path_out + "frame%d.jpg" % i, image)
         success, image = vidcap.read()
+        if not success:
+            return
 
 
 # if __file_name__=="__main__":

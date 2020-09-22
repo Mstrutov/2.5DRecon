@@ -9,12 +9,13 @@ stack_name = 'Bee wing new by-hand'
 
 file_names = os.listdir(datasets_path + stack_name)
 window_size = 21
-fms = {'LAPM', 'TENG', 'MLOG', 'VOLL4'}
+fms = ['LAPM', 'TENG', 'MLOG', 'VOLL4']
 is_masked = True
-prev_focus_map = None
+# prev_focus_map = None
 
 for fm in fms:
-    for i in range(0, len(file_names)):
+    prev_focus_map = None
+    for i in range(0, len(file_names) - 1):
         img = cv.imread(datasets_path + stack_name + '/' + file_names[i], cv.IMREAD_COLOR)
         focus_map = get_image_focus_map(img, focus_operator_window_size=window_size,
                                              focus_operator=of.name_to_function(fm), is_focus_window_masked=is_masked)
