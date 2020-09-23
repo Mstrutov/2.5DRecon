@@ -5,6 +5,27 @@ import experiments.objective_functions as of
 from experiments.apply_binarization import get_mask
 
 
+def get_focus_in_pixel(grayscale_img, mask, comprehensive_mask,
+                       x, y, window_size, focus_operator, is_focus_window_masked=True):
+    half_window_size = (window_size - 1) // 2
+
+    lower_x = max(0, x - half_window_size)
+    upper_x = min(grayscale_img.shape[1], x + half_window_size) + 1
+    lower_y = max(0, y - half_window_size)
+    upper_y = min(grayscale_img.shape[0], y + half_window_size) + 1
+
+    window = np.zeros((window_size, window_size), np.uint8)
+    window = window + np.mean(
+        grayscale_img[lower_y:upper_y, lower_x:upper_x][mask[lower_y:upper_y, lower_x:upper_x] == 255])
+
+    np.putmask(window, comprehensive_mask[y:(y + window_size), x:(x + window_size)] == 255,
+               grayscale_img[lower_y:upper_y, lower_x:upper_x])
+    if is_focus_window_masked:
+        return focus_operator(window)
+    else:
+        return focus_operator(grayscale_img[lower_y:upper_y, lower_x:upper_x])
+
+
 def get_image_focus_map(img, erosion_dilation_kernel_size=5, iterations_of_erosion_dilation=6,
                         global_black_background_threshold=2, focus_operator_window_size=11, focus_operator=of.LAPM,
                         is_focus_window_masked=True):
@@ -27,21 +48,8 @@ def get_image_focus_map(img, erosion_dilation_kernel_size=5, iterations_of_erosi
         half_window_size:(img.shape[1] + half_window_size)] = mask
 
     for (y, x) in np.array(np.where(mask == 255)).transpose().reshape(-1, 2):
-        lower_x = max(0, x - half_window_size)
-        upper_x = min(grayscale_img.shape[1], x + half_window_size) + 1
-        lower_y = max(0, y - half_window_size)
-        upper_y = min(grayscale_img.shape[0], y + half_window_size) + 1
-
-        window = np.zeros((window_size, window_size), np.uint8)
-        window = window + np.mean(
-            grayscale_img[lower_y:upper_y, lower_x:upper_x][mask[lower_y:upper_y, lower_x:upper_x] == 255])
-
-        np.putmask(window, comprehensive_mask[y:(y+window_size), x:(x+window_size)] == 255,
-                   grayscale_img[lower_y:upper_y, lower_x:upper_x])
-        if is_focus_window_masked:
-            focus_map[y, x] = focus_operator(grayscale_img[lower_y:upper_y, lower_x:upper_x])
-        else:
-            focus_map[y, x] = of.LAPM(grayscale_img[lower_y:upper_y, lower_x:upper_x])
+        focus_map[y, x] = get_focus_in_pixel(grayscale_img, mask, comprehensive_mask,
+                                             x, y, window_size, focus_operator, is_focus_window_masked)
     focus_map = focus_map / np.amax(focus_map) * 255
     return focus_map
 

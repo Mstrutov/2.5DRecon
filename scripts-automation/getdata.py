@@ -3,7 +3,7 @@ import cv2
 import os
 import re
 import numpy as np
-
+from shutil import copyfile
 
 def extractImages(pathIn, pathOut, msecsBetweenFrames=200):
     count = 0
@@ -33,6 +33,20 @@ def extract_frames(path_in, path_out, distance_between_frames=1):
             return
 
 
+def generate_reduced_z_stack(path_in, out_num_of_images=20):
+    original_z_stack = np.array(os.listdir(path_in))
+    if out_num_of_images > len(original_z_stack):
+        print("Cannot extend the z-stack with the size of reduced z-stack being more than the original's")
+        out_num_of_images = len(original_z_stack)
+    reduced_z_stack = original_z_stack[np.linspace(0, len(original_z_stack) - 1, out_num_of_images).astype(int)]
+    path_out = path_in + ' ' + str(out_num_of_images)
+    try:
+        os.mkdir(path_out)
+    except FileExistsError:
+        pass
+    for frame_name in reduced_z_stack:
+        copyfile(path_in + '/' + frame_name, path_out + '/' + frame_name)
+
 # if __file_name__=="__main__":
 #     a = argparse.ArgumentParser()
 #     a.add_argument("--pathIn", help="path to video")
@@ -53,6 +67,7 @@ file_names = np.array(file_names)
 # selecting '...<number>.mp4' files
 mask = [re.match(r'.*\.wmv', file_name) is not None for file_name in file_names]
 videos = file_names[mask]
+videos = []
 
 for video in videos:
     # getting the source video name
@@ -66,4 +81,7 @@ for video in videos:
     extract_frames(input_path, output_path, distance_between_frames=1)
     # extractImages(input_path, output_path, msecsBetweenFrames=33)
 
+stacks = os.listdir(r'../../datasets/thick_specimen/')
+for stack in stacks:
+    generate_reduced_z_stack(r'../../datasets/thick_specimen/' + stack, 20)
 #extractImages('datasets/videos/Bee wing (super slow).mp4', 'datasets/Bee wing new 100/', msecsBetweenFrames=100)
