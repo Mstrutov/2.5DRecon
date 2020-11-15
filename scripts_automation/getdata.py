@@ -5,6 +5,7 @@ import re
 import numpy as np
 from shutil import copyfile
 
+
 def extractImages(pathIn, pathOut, msecsBetweenFrames=200):
     count = 0
     vidcap = cv2.VideoCapture(pathIn)
@@ -21,12 +22,16 @@ def extractImages(pathIn, pathOut, msecsBetweenFrames=200):
 
 
 def extract_frames(path_in, path_out, distance_between_frames=1):
+    try:
+        os.mkdir(path_out)
+    except FileExistsError:
+        pass
     vidcap = cv2.VideoCapture(path_in)
     success, image = vidcap.read()
     if not success:
         return
     for i in range(0, int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT) - 1), distance_between_frames):
-        vidcap.set(cv2.CAP_PROP_POS_MSEC, i)    # added this line
+        vidcap.set(cv2.CAP_PROP_POS_FRAMES, i)    # added this line
         cv2.imwrite(path_out + "frame%d.jpg" % i, image)
         success, image = vidcap.read()
         if not success:
@@ -57,31 +62,31 @@ def generate_reduced_z_stack(path_in, out_num_of_images=20):
 #outputPath = r"datasets\\Drosophila\\"
 #extractImages(inputPath, outputPath)
 
-input_dir = r'../../datasets/videos/new/'
-output_dir = r'../../datasets/thick_specimen/'
-
-# getting the list of files
-file_names = os.listdir(input_dir)
-file_names = np.array(file_names)
-
-# selecting '...<number>.mp4' files
-mask = [re.match(r'.*\.wmv', file_name) is not None for file_name in file_names]
-videos = file_names[mask]
-videos = []
-
-for video in videos:
-    # getting the source video name
-    video_name = re.sub(r'(.*)\.wmv', r'\1', video)
-    # creating directory for the output
-    os.mkdir(output_dir + video_name)
-
-    # extracting images from video
-    input_path = input_dir + video_name + '.wmv'
-    output_path = output_dir + video_name + r'/'
-    extract_frames(input_path, output_path, distance_between_frames=1)
-    # extractImages(input_path, output_path, msecsBetweenFrames=33)
-
-stacks = os.listdir(r'../../datasets/thick_specimen/')
-for stack in stacks:
-    generate_reduced_z_stack(r'../../datasets/thick_specimen/' + stack, 20)
-#extractImages('datasets/videos/Bee wing (super slow).mp4', 'datasets/Bee wing new 100/', msecsBetweenFrames=100)
+# input_dir = r'../../datasets/videos/new/'
+# output_dir = r'../../datasets/thick_specimen/'
+#
+# # getting the list of files
+# file_names = os.listdir(input_dir)
+# file_names = np.array(file_names)
+#
+# # selecting '...<number>.mp4' files
+# mask = [re.match(r'.*\.wmv', file_name) is not None for file_name in file_names]
+# videos = file_names[mask]
+# videos = []
+#
+# for video in videos:
+#     # getting the source video name
+#     video_name = re.sub(r'(.*)\.wmv', r'\1', video)
+#     # creating directory for the output
+#     os.mkdir(output_dir + video_name)
+#
+#     # extracting images from video
+#     input_path = input_dir + video_name + '.wmv'
+#     output_path = output_dir + video_name + r'/'
+#     extract_frames(input_path, output_path, distance_between_frames=1)
+#     # extractImages(input_path, output_path, msecsBetweenFrames=33)
+#
+# stacks = os.listdir(r'../../datasets/thick_specimen/')
+# for stack in stacks:
+#     generate_reduced_z_stack(r'../../datasets/thick_specimen/' + stack, 20)
+# #extractImages('datasets/videos/Bee wing (super slow).mp4', 'datasets/Bee wing new 100/', msecsBetweenFrames=100)

@@ -62,7 +62,7 @@ for dataset_name in datasets:
     input_texture = f'{datasets_dir}/{dataset_name}/Texture.tif'
     input_depthmap = f'{datasets_dir}/{dataset_name}/Topography.tif'
     output_depthmap = f'{datasets_dir}/{dataset_name}/Topography-OTSU_2.png'
-    remove_background(input_depthmap, input_texture, output_depthmap, glob_threshold=2)
+    remove_background(input_depthmap, input_texture, output_depthmap, glob_threshold=0) # there is no black bg on these frames
 
 
 
